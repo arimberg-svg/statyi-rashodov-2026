@@ -139,16 +139,49 @@
       margin: 0 0 12px;
     }
     .cat.is-dim { opacity: 0.38; }
+    .cat:not(.is-open) { padding-bottom: 14px; }
     .cat-head, .payee {
       display: grid;
       grid-template-columns: 1fr auto;
       gap: 2px 16px;
       align-items: baseline;
     }
+    .cat-head {
+      grid-template-columns: 32px 1fr auto;
+      align-items: center;
+      cursor: pointer;
+      user-select: none;
+    }
+    .cat-head:focus-visible {
+      outline: 2px solid var(--copper);
+      outline-offset: 3px;
+    }
+    .plus {
+      grid-column: 1;
+      grid-row: 1 / span 2;
+      width: 28px;
+      height: 28px;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--line);
+      background: var(--white);
+      color: var(--copper);
+      font-size: 20px;
+      line-height: 1;
+      font-weight: 700;
+    }
     .cat-head h3 {
+      grid-column: 2;
       margin: 0;
       font-size: 20px;
       font-weight: 700;
+    }
+    .cat-head .sum { grid-column: 3; grid-row: 1; }
+    .cat-head .sub { grid-column: 2; }
+    .hint {
+      margin: -6px 0 14px;
+      color: var(--muted);
+      font-size: 14px;
     }
     .sum {
       margin: 0;
@@ -162,6 +195,7 @@
       font-size: 13px;
     }
     .payees { margin-top: 12px; }
+    .payees[hidden] { display: none; }
     .payee {
       padding: 9px 0 8px;
       border-top: 1px solid var(--line);
@@ -240,6 +274,7 @@
       <button class="reset" id="reset" type="button" hidden>Показать все статьи</button>
     </div>
     <h2>Статьи, имена и названия</h2>
+    <p class="hint">Плюс открывает имена и названия внутри статьи.</p>
     <div id="list"></div>
     <p class="empty" id="empty" hidden>Ничего не нашлось. Проверьте написание: имена и названия здесь такие же, как в выгрузке.</p>
     <footer id="foot"></footer>
@@ -258,6 +293,7 @@
     const resetBtn = document.getElementById("reset");
     const listEl = document.getElementById("list");
     const emptyEl = document.getElementById("empty");
+    const openCats = new Set();
     let active = null;
 
     function rub(value) {
@@ -397,12 +433,21 @@
         const people = peopleMatching(cat, query);
         if (!people.length) return;
         shown += 1;
+        const opened = openCats.has(cat.i);
         const section = document.createElement("section");
-        section.className = "cat";
+        section.className = "cat" + (opened ? " is-open" : "");
         section.style.setProperty("--c", catColor[cat.i]);
         section.id = "cat-" + cat.i;
         const head = document.createElement("div");
         head.className = "cat-head";
+        head.tabIndex = 0;
+        head.setAttribute("role", "button");
+        head.setAttribute("aria-expanded", opened ? "true" : "false");
+        head.setAttribute("aria-label", cat.name + (opened ? ", свернуть" : ", развернуть"));
+        const mark = document.createElement("span");
+        mark.className = "plus";
+        mark.setAttribute("aria-hidden", "true");
+        mark.textContent = opened ? "−" : "+";
         const title = document.createElement("h3");
         title.textContent = cat.name;
         const sum = document.createElement("p");
@@ -411,9 +456,17 @@
         const sub = document.createElement("p");
         sub.className = "sub";
         sub.textContent = ops(cat.count) + "  ·  " + share(cat.sum);
-        head.append(title, sum, sub);
+        head.append(mark, title, sum, sub);
+        head.addEventListener("click", () => toggleCat(cat.i));
+        head.addEventListener("keydown", (event) => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            toggleCat(cat.i);
+          }
+        });
         const payees = document.createElement("div");
         payees.className = "payees";
+        payees.hidden = !opened;
         const max = Math.max(...people.map((person) => person.sum));
         people.forEach((person) => {
           const row = document.createElement("div");
@@ -450,18 +503,37 @@
         path.classList.toggle("is-dim", active !== null && Number(path.dataset.index) !== active);
       });
     }
+    function toggleCat(id) {
+      if (openCats.has(id)) openCats.delete(id);
+      else openCats.add(id);
+      render();
+    }
+    function reveal(ids) {
+      ids.forEach((id) => openCats.add(id));
+    }
     function toggle(index) {
       active = active === index ? null : index;
+      if (active !== null) {
+        const item = data.pie[active];
+        reveal(item.cats || [item.cat]);
+      }
       render();
       if (active !== null) {
         const first = listEl.querySelector(".cat");
         if (first) first.scrollIntoView({ behavior: "smooth", block: "start" });
       }
     }
-    qInput.addEventListener("input", render);
+    qInput.addEventListener("input", () => {
+      const query = qInput.value.trim().toLowerCase();
+      if (query) {
+        reveal(data.categories.filter((cat) => matches(cat, query)).map((cat) => cat.i));
+      }
+      render();
+    });
     resetBtn.addEventListener("click", () => {
       active = null;
       qInput.value = "";
+      openCats.clear();
       render();
     });
     render();
