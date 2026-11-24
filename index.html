@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Куда ушли деньги</title>
+  <meta name="description" content="Куда ушли деньги по статьям: имена и названия из банковской выгрузки, 1 января — 23 ноября 2026.">
+  <meta property="og:title" content="Куда ушли деньги">
+  <meta property="og:description" content="Статьи, имена и названия из выгрузки. 1 января — 23 ноября 2026.">
+  <meta property="og:image" content="https://arimberg-svg.github.io/statyi-rashodov-2026/assets/pie.png">
+  <meta name="theme-color" content="#f3efe8">
+  <style>
+    :root {
+      --paper: #f3efe8;
+      --sheet: #fbfaf7;
+      --ink: #1c1915;
+      --muted: #6f6a63;
+      --line: #e4ddd2;
+      --copper: #9c4228;
+      --white: #ffffff;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 16px;
+      line-height: 1.45;
+    }
+    .wrap {
+      width: min(1080px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 36px 0 64px;
+    }
+    header.top {
+      padding-bottom: 28px;
+      border-bottom: 1px solid var(--line);
+    }
+    .kicker {
+      margin: 0 0 10px;
+      color: var(--copper);
+      font-size: 13px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    h1 {
+      margin: 0 0 12px;
+      font-family: Georgia, "Palatino Linotype", Palatino, serif;
+      font-size: 46px;
+      line-height: 1.05;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+    }
+    .lead {
+      margin: 0;
+      max-width: 38em;
+      color: var(--muted);
+      font-size: 17px;
+    }
+    .chart-panel {
+      margin-top: 22px;
+      background: var(--sheet);
+      border: 1px solid var(--line);
+      padding: 22px 28px;
+      display: grid;
+      grid-template-columns: 300px 1fr;
+      gap: 8px 36px;
+      align-items: center;
+    }
+    .chart-panel svg { width: 300px; height: 300px; display: block; }
+    .chart-panel svg path { cursor: pointer; }
+    .chart-panel svg path.is-dim { opacity: 0.35; }
+    .legend { list-style: none; margin: 0; padding: 0; }
+    .legend button {
+      width: 100%;
+      display: grid;
+      grid-template-columns: 12px minmax(0, 1fr) auto auto;
+      gap: 8px;
+      align-items: baseline;
+      padding: 5px 4px;
+      border: 0;
+      background: transparent;
+      color: inherit;
+      font: inherit;
+      text-align: left;
+      cursor: pointer;
+      border-radius: 2px;
+    }
+    .legend button:hover,
+    .legend button.is-on { background: #f0ebe3; }
+    .legend button:focus-visible,
+    .tools input:focus-visible,
+    .reset:focus-visible { outline: 2px solid var(--copper); outline-offset: 2px; }
+    .swatch { width: 12px; height: 12px; margin-top: 4px; }
+    .legend .name { font-size: 14px; }
+    .legend .meta {
+      font-variant-numeric: tabular-nums;
+      font-size: 13px;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+    .tools {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      margin: 28px 0 8px;
+    }
+    .tools input {
+      flex: 1;
+      border: 1px solid var(--line);
+      background: var(--white);
+      color: var(--ink);
+      font: inherit;
+      padding: 12px 14px;
+    }
+    .reset {
+      border: 1px solid var(--line);
+      background: var(--sheet);
+      color: var(--ink);
+      font: inherit;
+      padding: 12px 14px;
+      cursor: pointer;
+    }
+    .reset[hidden] { display: none; }
+    h2 {
+      margin: 34px 0 14px;
+      font-family: Georgia, "Palatino Linotype", Palatino, serif;
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+    .cat {
+      background: var(--sheet);
+      border: 1px solid var(--line);
+      border-top: 3px solid var(--c, var(--copper));
+      padding: 16px 18px 8px;
+      margin: 0 0 12px;
+    }
+    .cat.is-dim { opacity: 0.38; }
+    .cat-head, .payee {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 2px 16px;
+      align-items: baseline;
+    }
+    .cat-head h3 {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 700;
+    }
+    .sum {
+      margin: 0;
+      font-variant-numeric: tabular-nums;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .sub {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .payees { margin-top: 12px; }
+    .payee {
+      padding: 9px 0 8px;
+      border-top: 1px solid var(--line);
+    }
+    .payee .who { margin: 0; }
+    .payee .sum { font-weight: 400; }
+    .note {
+      grid-column: 1 / -1;
+      margin: 2px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .bar {
+      grid-column: 1 / -1;
+      height: 3px;
+      margin-top: 6px;
+      background: #efeae2;
+    }
+    .bar span {
+      display: block;
+      height: 100%;
+      background: var(--c, var(--copper));
+    }
+    .empty {
+      margin: 18px 0;
+      color: var(--muted);
+    }
+    footer {
+      margin-top: 28px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    @media (max-width: 800px) {
+      h1 { font-size: 36px; }
+      .wrap { width: min(1080px, calc(100% - 24px)); }
+      .chart-panel { grid-template-columns: 1fr; padding: 14px 12px; }
+      .chart-panel svg { width: min(280px, 100%); height: auto; margin: 0 auto; }
+      .legend button {
+        grid-template-columns: 12px minmax(0, 1fr) auto;
+        gap: 2px 8px;
+      }
+      .legend .name { grid-column: 2; grid-row: 1; }
+      .legend .pct { grid-column: 3; grid-row: 1; }
+      .legend .money { grid-column: 2 / -1; grid-row: 2; justify-self: start; }
+      .tools { flex-direction: column; align-items: stretch; }
+    }
+    @media (max-width: 520px) {
+      .legend button { grid-template-columns: 12px minmax(0, 1fr); }
+      .legend .name,
+      .legend .pct,
+      .legend .money {
+        grid-column: 2;
+        grid-row: auto;
+        justify-self: start;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="top">
+      <div>
+        <p class="kicker" id="kicker"></p>
+        <h1>Куда ушли деньги</h1>
+        <p class="lead" id="lead"></p>
+      </div>
+      <div class="chart-panel">
+        <svg id="pie" viewBox="0 0 320 320" role="img" aria-labelledby="pie-title">
+          <title id="pie-title">Круговая диаграмма расходов по статьям</title>
+        </svg>
+        <ul class="legend" id="legend"></ul>
+      </div>
+    </header>
+    <div class="tools">
+      <input id="q" type="search" placeholder="Найти имя или название" aria-label="Найти имя или название">
+      <button class="reset" id="reset" type="button" hidden>Показать все статьи</button>
+    </div>
+    <h2>Статьи, имена и названия</h2>
+    <div id="list"></div>
+    <p class="empty" id="empty" hidden>Ничего не нашлось. Проверьте написание: имена и названия здесь такие же, как в выгрузке.</p>
+    <footer id="foot"></footer>
+  </div>
+  <script id="spend-data" type="application/json">{"period":"1 января — 23 ноября 2026","account":"Black","total":1522645.31,"ops":1731,"aside":"Ещё 50 операций банк пометил «не учитывать в аналитике» или оставил в обработке. На странице они тоже есть: имя и название те же, что в файле.","categories":[{"i":0,"name":"Переводы","sum":681277.71,"count":287,"people":[{"name":"Людмила Х.","sum":284491.95,"count":5,"pending":0.0,"notes":[]},{"name":"Себе в другой банк","sum":160574.01,"count":123,"pending":0.0,"notes":[]},{"name":"Елена К.","sum":89850.0,"count":78,"pending":0.0,"notes":["С днём варенья ))"]},{"name":"Антон А.","sum":35585.0,"count":11,"pending":0.0,"notes":[]},{"name":"Наталья В.","sum":20440.0,"count":11,"pending":0.0,"notes":[]},{"name":"Андрей С.","sum":15000.0,"count":4,"pending":0.0,"notes":[]},{"name":"Александра М.","sum":12450.0,"count":10,"pending":100.0,"notes":["Откажи себе в чем нибудь)))"]},{"name":"Александр Н.","sum":6000.0,"count":2,"pending":0.0,"notes":[]},{"name":"Людмила В.","sum":5000.0,"count":1,"pending":0.0,"notes":[]},{"name":"Надежда М.","sum":5000.0,"count":1,"pending":0.0,"notes":[]},{"name":"Софья С.","sum":4700.0,"count":2,"pending":0.0,"notes":[]},{"name":"Курбан Г.","sum":4000.0,"count":1,"pending":0.0,"notes":[]},{"name":"Марина Ю.","sum":3600.0,"count":2,"pending":0.0,"notes":[]},{"name":"Виталий Д.","sum":3400.0,"count":2,"pending":0.0,"notes":[]},{"name":"Василий М.","sum":3200.0,"count":1,"pending":0.0,"notes":[]},{"name":"Татьяна К.","sum":3200.0,"count":2,"pending":0.0,"notes":[]},{"name":"Андрей Р.","sum":3140.0,"count":2,"pending":0.0,"notes":[]},{"name":"Алексей Я.","sum":3000.0,"count":1,"pending":0.0,"notes":[]},{"name":"Алена М.","sum":2426.0,"count":2,"pending":0.0,"notes":[]},{"name":"Илья Е.","sum":2144.0,"count":1,"pending":0.0,"notes":[]},{"name":"Варвара Г.","sum":1600.0,"count":1,"pending":0.0,"notes":[]},{"name":"Александр Ш.","sum":1500.0,"count":1,"pending":0.0,"notes":[]},{"name":"Николай А.","sum":1450.0,"count":4,"pending":0.0,"notes":[]},{"name":"Ольга Б.","sum":1389.35,"count":1,"pending":0.0,"notes":[]},{"name":"Ксения З.","sum":1250.0,"count":1,"pending":0.0,"notes":[]},{"name":"Татьяна И.","sum":1017.0,"count":1,"pending":0.0,"notes":[]},{"name":"Татьяна З.","sum":1000.0,"count":1,"pending":0.0,"notes":[]},{"name":"Исполнение внешних требований","sum":520.4,"count":2,"pending":0.0,"notes":[]},{"name":"Аноним","sum":500.0,"count":1,"pending":0.0,"notes":[]},{"name":"Марина Д.","sum":500.0,"count":1,"pending":0.0,"notes":[]},{"name":"Ольга Д.","sum":500.0,"count":1,"pending":0.0,"notes":[]},{"name":"Алексей П.","sum":420.0,"count":1,"pending":0.0,"notes":[]},{"name":"Максим С.","sum":420.0,"count":1,"pending":0.0,"notes":[]},{"name":"Тухтамурод Д.","sum":407.0,"count":1,"pending":0.0,"notes":[]},{"name":"Евгений А.","sum":400.0,"count":1,"pending":0.0,"notes":[]},{"name":"Анна П.","sum":350.0,"count":1,"pending":0.0,"notes":[]},{"name":"Тимур А.","sum":300.0,"count":1,"pending":0.0,"notes":["За Дашу Вычерову"]},{"name":"Степан К.","sum":170.0,"count":1,"pending":0.0,"notes":[]},{"name":"Госуслуги","sum":165.0,"count":1,"pending":0.0,"notes":[]},{"name":"Вадим Ч.","sum":109.0,"count":1,"pending":0.0,"notes":[]},{"name":"Раиса А.","sum":109.0,"count":1,"pending":0.0,"notes":[]}]},{"i":1,"name":"Супермаркеты","sum":443236.9,"count":635,"people":[{"name":"Красное и белое","sum":196559.65,"count":218,"pending":0.0,"notes":[]},{"name":"Пятёрочка","sum":74825.01,"count":127,"pending":0.0,"notes":[]},{"name":"Магнит","sum":50773.04,"count":116,"pending":0.0,"notes":[]},{"name":"Перекрёсток доставка","sum":30590.26,"count":19,"pending":0.0,"notes":[]},{"name":"Метрополис","sum":26788.4,"count":51,"pending":0.0,"notes":[]},{"name":"Монетка","sum":13504.27,"count":31,"pending":0.0,"notes":[]},{"name":"Чижик","sum":9129.66,"count":8,"pending":0.0,"notes":[]},{"name":"Продуктовый магазин","sum":7950.0,"count":13,"pending":0.0,"notes":[]},{"name":"Светлое и Тёмное","sum":4775.74,"count":5,"pending":0.0,"notes":[]},{"name":"Яндекс Лавка","sum":3141.0,"count":4,"pending":0.0,"notes":[]},{"name":"Магнит Доставка","sum":2983.0,"count":2,"pending":0.0,"notes":[]},{"name":"Zajdi Za Myasom","sum":2618.0,"count":2,"pending":0.0,"notes":[]},{"name":"Продукты Ермолино","sum":2608.73,"count":2,"pending":0.0,"notes":[]},{"name":"Ярче!","sum":2307.79,"count":4,"pending":0.0,"notes":[]},{"name":"Лента","sum":2104.21,"count":2,"pending":0.0,"notes":[]},{"name":"Купер","sum":2087.59,"count":1,"pending":0.0,"notes":[]},{"name":"Жизньмарт","sum":2038.0,"count":6,"pending":0.0,"notes":[]},{"name":"Eko Morya","sum":1527.0,"count":2,"pending":0.0,"notes":[]},{"name":"Пятёрочка доставка","sum":1315.0,"count":1,"pending":0.0,"notes":[]},{"name":"Свинокомплекс Согласие","sum":1175.98,"count":1,"pending":0.0,"notes":[]},{"name":"Магазин","sum":843.6,"count":4,"pending":0.0,"notes":[]},{"name":"IP Karimov V.G.","sum":780.0,"count":1,"pending":0.0,"notes":[]},{"name":"Мясокомбинат Велес","sum":451.04,"count":2,"pending":0.0,"notes":[]},{"name":"Перекрёсток","sum":309.97,"count":1,"pending":0.0,"notes":[]},{"name":"Ассортимент2_P_QR","sum":261.98,"count":1,"pending":0.0,"notes":[]},{"name":"Pekarnya Syt","sum":260.0,"count":1,"pending":0.0,"notes":[]},{"name":"Монетка_P_QR","sum":254.99,"count":1,"pending":0.0,"notes":[]},{"name":"Овощная лавка","sum":241.0,"count":1,"pending":0.0,"notes":[]},{"name":"СитиМаркет","sum":204.0,"count":1,"pending":0.0,"notes":[]},{"name":"Sevan Magazin","sum":175.0,"count":1,"pending":0.0,"notes":[]},{"name":"Ассорти продукты","sum":165.0,"count":1,"pending":0.0,"notes":[]},{"name":"Тюменский пломбир","sum":144.0,"count":1,"pending":0.0,"notes":[]},{"name":"Svetloe I Temnoe","sum":114.99,"count":1,"pending":0.0,"notes":[]},{"name":"Pekarnya Kulinariya","sum":90.0,"count":1,"pending":0.0,"notes":[]},{"name":"Tyumenskiy plombir","sum":73.0,"count":1,"pending":0.0,"notes":[]},{"name":"Славица","sum":66.0,"count":1,"pending":0.0,"notes":[]}]},{"i":2,"name":"Рестораны","sum":71426.62,"count":269,"people":[{"name":"Pennyj Bochonok","sum":68772.32,"count":263,"pending":0.0,"notes":[]},{"name":"Biskvitnyj Dvor","sum":872.8,"count":1,"pending":0.0,"notes":[]},{"name":"Пенный бочонок_P_QR","sum":842.0,"count":3,"pending":0.0,"notes":[]},{"name":"45 Kalibr","sum":526.5,"count":1,"pending":0.0,"notes":[]},{"name":"OOO Impuls","sum":413.0,"count":1,"pending":0.0,"notes":[]}]},{"i":3,"name":"Маркетплейсы","sum":64252.0,"count":18,"people":[{"name":"WILDBERRIES","sum":64252.0,"count":18,"pending":0.0,"notes":[]}]},{"i":4,"name":"Сервис","sum":30323.78,"count":17,"people":[{"name":"Деливери","sum":28024.78,"count":14,"pending":0.0,"notes":[]},{"name":"Shu Vey","sum":2000.0,"count":1,"pending":0.0,"notes":[]},{"name":"YM*happydns","sum":199.0,"count":1,"pending":0.0,"notes":[]},{"name":"Нейрохолст","sum":100.0,"count":1,"pending":0.0,"notes":[]}]},{"i":5,"name":"Одежда и обувь","sum":29509.0,"count":7,"people":[{"name":"Familia","sum":14669.0,"count":1,"pending":0.0,"notes":[]},{"name":"ONLYSHE72","sum":9551.0,"count":2,"pending":0.0,"notes":[]},{"name":"Baon","sum":3238.0,"count":2,"pending":0.0,"notes":[]},{"name":"Zolla","sum":1606.0,"count":1,"pending":0.0,"notes":[]},{"name":"IP Gorbunova M.A.","sum":445.0,"count":1,"pending":0.0,"notes":[]}]},{"i":6,"name":"Такси","sum":28206.0,"count":103,"people":[{"name":"Яндекс Такси","sum":28206.0,"count":103,"pending":0.0,"notes":[]}]},{"i":7,"name":"Госуслуги","sum":22102.78,"count":1,"people":[{"name":"Госуслуги","sum":22102.78,"count":1,"pending":0.0,"notes":[]}]},{"i":8,"name":"Фастфуд","sum":21190.75,"count":56,"people":[{"name":"Яндекс Еда","sum":8764.09,"count":8,"pending":0.0,"notes":[]},{"name":"IP Kamornikova Yuv5","sum":3115.47,"count":13,"pending":0.0,"notes":[]},{"name":"Электр школа_SBP","sum":1956.0,"count":3,"pending":0.0,"notes":[]},{"name":"Вендинговый автомат","sum":1590.0,"count":12,"pending":0.0,"notes":[]},{"name":"КШП Центральный","sum":1546.4,"count":3,"pending":0.0,"notes":[]},{"name":"Stol-Ya Farmsintez 2","sum":1349.0,"count":7,"pending":0.0,"notes":[]},{"name":"Kofejnya Sobol","sum":560.0,"count":1,"pending":0.0,"notes":[]},{"name":"Три Богатыря","sum":480.0,"count":2,"pending":0.0,"notes":[]},{"name":"Бургер Кинг","sum":479.99,"count":1,"pending":0.0,"notes":[]},{"name":"Магазин","sum":389.8,"count":1,"pending":0.0,"notes":[]},{"name":"Шаурма","sum":350.0,"count":1,"pending":0.0,"notes":[]},{"name":"Stol-Ya Farmsintez","sum":301.0,"count":2,"pending":0.0,"notes":[]},{"name":"Garden","sum":209.0,"count":1,"pending":0.0,"notes":[]},{"name":"МаксиМ","sum":100.0,"count":1,"pending":0.0,"notes":[]}]},{"i":9,"name":"Цифровые товары","sum":17620.91,"count":17,"people":[{"name":"FunPay","sum":9943.88,"count":6,"pending":0.0,"notes":[]},{"name":"Цифровые товары","sum":3469.0,"count":1,"pending":0.0,"notes":[]},{"name":"KJIuHok","sum":1749.0,"count":1,"pending":0.0,"notes":[]},{"name":"STARVELL","sum":1124.43,"count":3,"pending":0.0,"notes":[]},{"name":"Playerok","sum":357.0,"count":1,"pending":0.0,"notes":[]},{"name":"Arcadia Labs","sum":324.45,"count":2,"pending":0.0,"notes":[]},{"name":"Md.*PlayK","sum":300.15,"count":1,"pending":0.0,"notes":[]},{"name":"VPN","sum":249.0,"count":1,"pending":0.0,"notes":[]},{"name":"ck*rldofmorgan","sum":104.0,"count":1,"pending":0.0,"notes":[]}]},{"i":10,"name":"Красота","sum":15637.54,"count":13,"people":[{"name":"Sp_Nude.","sum":8055.0,"count":4,"pending":0.0,"notes":[]},{"name":"М.Косметик","sum":4827.54,"count":6,"pending":0.0,"notes":[]},{"name":"Evo_Klever","sum":2055.0,"count":2,"pending":0.0,"notes":[]},{"name":"Просто стрижка","sum":700.0,"count":1,"pending":0.0,"notes":[]}]},{"i":11,"name":"Финансы","sum":13410.7,"count":9,"people":[{"name":"Фианит-Ломбард","sum":9239.7,"count":6,"pending":0.0,"notes":[]},{"name":"Яндекс Сплит","sum":2171.0,"count":1,"pending":0.0,"notes":[]},{"name":"Операция в других кредитных организациях YandexBank_C2A g. Moskva RUS","sum":2000.0,"count":2,"pending":0.0,"notes":[]}]},{"i":12,"name":"Мобильная связь","sum":10992.0,"count":19,"people":[{"name":"МТС +7 999 549-50-36","sum":6175.0,"count":9,"pending":0.0,"notes":[]},{"name":"МТС +7 982 917-87-93","sum":2385.0,"count":4,"pending":0.0,"notes":[]},{"name":"МТС","sum":1250.0,"count":1,"pending":0.0,"notes":[]},{"name":"Мобайл","sum":372.0,"count":1,"pending":0.0,"notes":[]},{"name":"МегаФон +7 922 046-61-46","sum":300.0,"count":1,"pending":0.0,"notes":[]},{"name":"МегаФон +7 929 263-93-94","sum":300.0,"count":1,"pending":0.0,"notes":[]},{"name":"T2 +7 982 912-69-99","sum":200.0,"count":1,"pending":0.0,"notes":[]},{"name":"Мобайл +7 961 060-71-31","sum":10.0,"count":1,"pending":0.0,"notes":[]}]},{"i":13,"name":"Связь","sum":9986.01,"count":10,"people":[{"name":"Мобайл","sum":5601.0,"count":7,"pending":0.0,"notes":[]},{"name":"ЭР-Телеком","sum":2395.01,"count":2,"pending":0.0,"notes":[]},{"name":"Яндекс 360","sum":1990.0,"count":1,"pending":0.0,"notes":[]}]},{"i":14,"name":"Ремонт и мебель","sum":9745.59,"count":13,"people":[{"name":"У Михалыча","sum":9745.59,"count":13,"pending":0.0,"notes":[]}]},{"i":15,"name":"Аптеки","sum":9034.01,"count":14,"people":[{"name":"AptekaFarmlend43","sum":5203.61,"count":10,"pending":0.0,"notes":[]},{"name":"Живика","sum":3463.4,"count":2,"pending":0.0,"notes":[]},{"name":"Аптека Вита","sum":199.0,"count":1,"pending":0.0,"notes":[]},{"name":"Аптека Ригла","sum":168.0,"count":1,"pending":0.0,"notes":[]}]},{"i":16,"name":"Медицина","sum":8210.5,"count":2,"people":[{"name":"Альфа Центр Здоровье","sum":5350.5,"count":1,"pending":0.0,"notes":[]},{"name":"Стоматология","sum":2860.0,"count":1,"pending":0.0,"notes":[]}]},{"i":17,"name":"Местный транспорт","sum":8098.0,"count":184,"people":[{"name":"НСПК","sum":6794.0,"count":182,"pending":0.0,"notes":[]},{"name":"EasyWay","sum":1104.0,"count":1,"pending":0.0,"notes":[]},{"name":"Тюменская транспортная система","sum":200.0,"count":1,"pending":0.0,"notes":[]}]},{"i":18,"name":"Услуги банка","sum":6113.71,"count":39,"people":[{"name":"Комиссия за операцию","sum":4308.46,"count":15,"pending":0.0,"notes":[]},{"name":"Плата за обслуживание","sum":891.0,"count":9,"pending":0.0,"notes":[]},{"name":"Плата за оповещения об операциях","sum":891.0,"count":10,"pending":0.0,"notes":[]},{"name":"Себе в другой банк","sum":23.25,"count":5,"pending":0.0,"notes":[]}]},{"i":19,"name":"Наличные","sum":5500.0,"count":2,"people":[{"name":"Снятие в банкомате ATM 60079311","sum":3000.0,"count":1,"pending":0.0,"notes":[]},{"name":"Снятие в банкомате Т-Банк","sum":2500.0,"count":1,"pending":0.0,"notes":[]}]},{"i":20,"name":"Ж/д билеты","sum":5167.8,"count":2,"people":[{"name":"Федеральная пассажирская компания","sum":5167.8,"count":2,"pending":0.0,"notes":[]}]},{"i":21,"name":"Цветы","sum":3200.0,"count":1,"people":[{"name":"Цветочный магазин","sum":3200.0,"count":1,"pending":0.0,"notes":[]}]},{"i":22,"name":"Экосистема Яндекс","sum":2596.0,"count":7,"people":[{"name":"Яндекс Плюс","sum":2596.0,"count":7,"pending":0.0,"notes":[]}]},{"i":23,"name":"Различные услуги","sum":2120.0,"count":1,"people":[{"name":"Яндекс","sum":2120.0,"count":1,"pending":0.0,"notes":[]}]},{"i":24,"name":"Турагентства","sum":1265.0,"count":1,"people":[{"name":"Tutu","sum":1265.0,"count":1,"pending":0.0,"notes":[]}]},{"i":25,"name":"Интернет","sum":1220.0,"count":1,"people":[{"name":"Ростелеком Плати Просто","sum":1220.0,"count":1,"pending":0.0,"notes":[]}]},{"i":26,"name":"Искусство","sum":840.0,"count":1,"people":[{"name":"Spl","sum":840.0,"count":1,"pending":0.0,"notes":[]}]},{"i":27,"name":"Заправки","sum":362.0,"count":2,"people":[{"name":"AZS Borovoe","sum":187.0,"count":1,"pending":0.0,"notes":[]},{"name":"Газпромнефть","sum":175.0,"count":1,"pending":0.0,"notes":[]}]}],"pie":[{"name":"Переводы","sum":681277.71,"cat":0},{"name":"Супермаркеты","sum":443236.9,"cat":1},{"name":"Рестораны","sum":71426.62,"cat":2},{"name":"Маркетплейсы","sum":64252.0,"cat":3},{"name":"Сервис","sum":30323.78,"cat":4},{"name":"Одежда и обувь","sum":29509.0,"cat":5},{"name":"Такси","sum":28206.0,"cat":6},{"name":"Госуслуги","sum":22102.78,"cat":7},{"name":"Фастфуд","sum":21190.75,"cat":8},{"name":"Цифровые товары","sum":17620.91,"cat":9},{"name":"Красота","sum":15637.54,"cat":10},{"name":"Прочее","sum":97861.32,"cats":[11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27]}]}</script>
+  <script>
+    const data = JSON.parse(document.getElementById("spend-data").textContent);
+    const COLORS = ["#1f4b6e","#e07a3d","#c44536","#2f7c78","#2f6b4f","#c4962c","#7a5ea7","#d4768a","#8c6239","#7f8c99","#b85c8a","#5c5346"];
+    const pieColors = data.pie.map((_, i) => COLORS[i % COLORS.length]);
+    const catColor = data.categories.map((cat) => {
+      const slice = data.pie.findIndex((item) => item.cat === cat.i || (item.cats || []).includes(cat.i));
+      return pieColors[slice] || COLORS[COLORS.length - 1];
+    });
+
+    const qInput = document.getElementById("q");
+    const resetBtn = document.getElementById("reset");
+    const listEl = document.getElementById("list");
+    const emptyEl = document.getElementById("empty");
+    let active = null;
+
+    function rub(value) {
+      const negative = value < 0;
+      const [whole, frac] = Math.abs(value).toFixed(2).split(".");
+      const grouped = whole.replace(/\B(?=(\d{3})+(?!\d))/g, "\u00a0");
+      return (negative ? "−" : "") + grouped + "," + frac + "\u00a0₽";
+    }
+    function share(value) {
+      const pct = (100 * value) / data.total;
+      if (pct < 0.05) return "<\u00a00,1%";
+      return pct.toFixed(1).replace(".", ",") + "%";
+    }
+    function opsWord(count) {
+      const n = Math.abs(count) % 100;
+      const n1 = n % 10;
+      if (n > 10 && n < 15) return "операций";
+      if (n1 === 1) return "операция";
+      if (n1 > 1 && n1 < 5) return "операции";
+      return "операций";
+    }
+    function ops(count) {
+      return count + "\u00a0" + opsWord(count);
+    }
+
+    document.getElementById("kicker").textContent = data.period + "  ·  счёт " + data.account;
+    document.getElementById("lead").textContent = "Со счёта ушло " + rub(data.total) + ", " + ops(data.ops) + ". На круге статья стоит отдельно, если на неё пришлось от 1% суммы. Ниже все имена и названия так, как они записаны в выгрузке.";
+    document.getElementById("foot").textContent = "В файле суммы со знаком минус: это расход. Здесь они показаны как потраченные деньги. " + data.aside;
+
+    function polar(cx, cy, r, angle) {
+      return [cx + r * Math.cos(angle), cy + r * Math.sin(angle)];
+    }
+    function ring(cx, cy, r, a0, a1, sweep) {
+      const [x0, y0] = polar(cx, cy, r, a0);
+      const [x1, y1] = polar(cx, cy, r, a1);
+      const large = Math.abs(a1 - a0) > Math.PI ? 1 : 0;
+      return "M " + x0 + " " + y0 + " A " + r + " " + r + " 0 " + large + " " + sweep + " " + x1 + " " + y1;
+    }
+    function slicePath(cx, cy, r, ir, a0, a1) {
+      const [ix, iy] = polar(cx, cy, ir, a1);
+      return ring(cx, cy, r, a0, a1, 1) + " L " + ix + " " + iy + " " + ring(cx, cy, ir, a1, a0, 0).replace(/^M\s+[-\d.]+\s+[-\d.]+\s+/, "") + " Z";
+    }
+
+    const svg = document.getElementById("pie");
+    const cx = 160;
+    const cy = 160;
+    let angle = -Math.PI / 2;
+    data.pie.forEach((item, index) => {
+      const sweep = (item.sum / data.total) * Math.PI * 2;
+      const pad = sweep > 0.08 ? 0.012 : 0;
+      const a0 = angle + pad;
+      const a1 = angle + sweep - pad;
+      const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      path.setAttribute("d", slicePath(cx, cy, 142, 78, a0, a1));
+      path.setAttribute("fill", pieColors[index]);
+      path.dataset.index = String(index);
+      const title = document.createElementNS("http://www.w3.org/2000/svg", "title");
+      title.textContent = item.name + ": " + rub(item.sum) + ", " + share(item.sum);
+      path.appendChild(title);
+      path.addEventListener("click", () => toggle(index));
+      svg.appendChild(path);
+      if (item.sum / data.total >= 0.07) {
+        const mid = angle + sweep / 2;
+        const [x, y] = polar(cx, cy, 110, mid);
+        const label = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        label.setAttribute("x", x);
+        label.setAttribute("y", y);
+        label.setAttribute("text-anchor", "middle");
+        label.setAttribute("dominant-baseline", "middle");
+        label.setAttribute("fill", "#ffffff");
+        label.setAttribute("font-size", "15");
+        label.setAttribute("font-family", "Arial, sans-serif");
+        label.setAttribute("font-weight", "700");
+        label.setAttribute("pointer-events", "none");
+        label.textContent = share(item.sum);
+        svg.appendChild(label);
+      }
+      angle += sweep;
+    });
+    const hole = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    hole.setAttribute("x", cx);
+    hole.setAttribute("y", cy + 1);
+    hole.setAttribute("text-anchor", "middle");
+    hole.setAttribute("dominant-baseline", "middle");
+    hole.setAttribute("fill", "#1c1915");
+    hole.setAttribute("font-size", "14");
+    hole.setAttribute("font-family", "Arial, sans-serif");
+    hole.setAttribute("font-weight", "700");
+    hole.textContent = rub(data.total).replace("\u00a0₽", "");
+    svg.appendChild(hole);
+
+    const legend = document.getElementById("legend");
+    data.pie.forEach((item, index) => {
+      const li = document.createElement("li");
+      const button = document.createElement("button");
+      button.type = "button";
+      button.addEventListener("click", () => toggle(index));
+      const sw = document.createElement("span");
+      sw.className = "swatch";
+      sw.style.background = pieColors[index];
+      const name = document.createElement("span");
+      name.className = "name";
+      name.textContent = item.name;
+      const money = document.createElement("span");
+      money.className = "meta money";
+      money.textContent = rub(item.sum);
+      const meta = document.createElement("span");
+      meta.className = "meta pct";
+      meta.textContent = share(item.sum);
+      button.append(sw, name, money, meta);
+      li.appendChild(button);
+      legend.appendChild(li);
+    });
+
+    function matches(cat, query) {
+      if (!query) return true;
+      const hay = [cat.name, ...cat.people.flatMap((person) => [person.name, ...person.notes])].join(" ").toLowerCase();
+      return hay.includes(query);
+    }
+    function peopleMatching(cat, query) {
+      if (!query) return cat.people;
+      return cat.people.filter((person) => (person.name + " " + person.notes.join(" ") + " " + cat.name).toLowerCase().includes(query));
+    }
+    function selectedIndexes() {
+      if (active === null) return null;
+      const item = data.pie[active];
+      return item.cats ? item.cats : [item.cat];
+    }
+    function render() {
+      const query = qInput.value.trim().toLowerCase();
+      const picked = selectedIndexes();
+      listEl.textContent = "";
+      let shown = 0;
+      data.categories.forEach((cat) => {
+        if (picked && !picked.includes(cat.i)) return;
+        if (!matches(cat, query)) return;
+        const people = peopleMatching(cat, query);
+        if (!people.length) return;
+        shown += 1;
+        const section = document.createElement("section");
+        section.className = "cat";
+        section.style.setProperty("--c", catColor[cat.i]);
+        section.id = "cat-" + cat.i;
+        const head = document.createElement("div");
+        head.className = "cat-head";
+        const title = document.createElement("h3");
+        title.textContent = cat.name;
+        const sum = document.createElement("p");
+        sum.className = "sum";
+        sum.textContent = rub(cat.sum);
+        const sub = document.createElement("p");
+        sub.className = "sub";
+        sub.textContent = ops(cat.count) + "  ·  " + share(cat.sum);
+        head.append(title, sum, sub);
+        const payees = document.createElement("div");
+        payees.className = "payees";
+        const max = Math.max(...people.map((person) => person.sum));
+        people.forEach((person) => {
+          const row = document.createElement("div");
+          row.className = "payee";
+          const who = document.createElement("p");
+          who.className = "who";
+          who.textContent = person.name;
+          const amount = document.createElement("p");
+          amount.className = "sum";
+          amount.textContent = rub(person.sum);
+          const meta = document.createElement("p");
+          meta.className = "note";
+          const bits = [ops(person.count)];
+          if (person.pending) bits.push(rub(person.pending) + " ещё в обработке");
+          if (person.notes.length) bits.push("в сообщении: " + person.notes.join("; "));
+          meta.textContent = bits.join("  ·  ");
+          const bar = document.createElement("div");
+          bar.className = "bar";
+          const fill = document.createElement("span");
+          fill.style.width = Math.max(2, (person.sum / max) * 100) + "%";
+          bar.appendChild(fill);
+          row.append(who, amount, meta, bar);
+          payees.appendChild(row);
+        });
+        section.append(head, payees);
+        listEl.appendChild(section);
+      });
+      emptyEl.hidden = shown !== 0;
+      resetBtn.hidden = active === null && !query;
+      legend.querySelectorAll("button").forEach((button, index) => {
+        button.classList.toggle("is-on", index === active);
+      });
+      svg.querySelectorAll("path").forEach((path) => {
+        path.classList.toggle("is-dim", active !== null && Number(path.dataset.index) !== active);
+      });
+    }
+    function toggle(index) {
+      active = active === index ? null : index;
+      render();
+      if (active !== null) {
+        const first = listEl.querySelector(".cat");
+        if (first) first.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }
+    qInput.addEventListener("input", render);
+    resetBtn.addEventListener("click", () => {
+      active = null;
+      qInput.value = "";
+      render();
+    });
+    render();
+  </script>
+</body>
+</html>
